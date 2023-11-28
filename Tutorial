@@ -1,0 +1,90 @@
+Introduction:-
+
+*) Helm is a package manager for Kubernetes. Helm is an open-source project originally created by DeisLabs and donated
+   to the Cloud Native Foundation (CNCF). The CNCF now maintains and has graduated the project.
+*) Package management is not a new concept in the software industry. On Linux distros, you manage software installation 
+   and removal with package managers such as YUM/RPM (or) APT. On Windows, you can use Chocolatey (or) Homebrew on Mac.
+*) Helm lets you package and deploy complete applications in Kubernetes. A package is called a "Chart".
+*) Helm uses a templating system based on Go template to render Kubernetes manifests from charts. A chart is a consistent
+   structure separating templates and values.
+*) When Helm runs at the top level of the chart directory it installs whole dependencies. You have just a single command
+    to render and release your application to Kubernetes.
+*) Helm charts use versions to track changes in your manifests – thus you can install a specific chart version for specific
+   infrastructure configurations. Helm keeps a release history of all deployed charts in a dedicated workspace. This makes
+   easier application updates and rollbacks if something wrong happens.
+*) Helm allows you to compress charts. The result of that is an artifact comparable to a Docker image. Then, you can send it
+   to a distant repository for reusability and sharing.
+
+Benefits of Using Helm?
+
+*) Helm provides you the ability to install applications with a single command. A chart can contain other charts as dependencies.
+   You can consequently deploy an entire stack with Helm. You can use Helm like "docker-compose" but for Kubernetes.
+*) A chart includes templates for various Kubernetes resources to form a complete application. This reduces the microservices
+   complexity and simplifies their management in Kubernetes.
+*) Charts can be compressed and sent to a distant repository. This creates an application artifact for Kubernetes. You can also fetch
+   and deploy existing Helm charts from repositories. This is a strong point for reusability and sharing.
+*) Helm maintains a history of deployed release versions in the Helm workspace. When something goes wrong, rolling back to a previous
+   version is simply — canary release is facilitated with Helm for zero-downtime deployments.
+*) Helm makes the deployment highly configurable. Applications can be customized on the fly during the deployment. By changing parameters,
+   you can use the same chart for multiple environments such as dev, staging, and production.
+*) Streamline CI/CD pipelines – Forward GitOps best practices.
+
+Helm installs resources in the following order:
+
+ *) Namespace
+ *) Network-Policy
+ *) Resource-Quota
+ *) LimitRange
+ *) PodSecurity-Policy
+ *) PodDisruptionBudget
+ *) ServiceAccount
+ *) Secret
+ *) Secret-List
+ *) ConfigMap
+ *) StorageClass
+ *) PersistentVolume [pv]
+ *) PersistentVolume-Claim [pvc]
+ *) Custom-Resource-Definition
+ *) ClusterRole
+ *) ClusterRole-List
+ *) ClusterRole-Binding
+ *) ClusterRole-Binding-List
+ *) Role
+ *) Role-List
+ *) Role-Binding
+ *) RoleBinding-List
+ *) Service
+ *) Daemon-Set
+ *) Pod
+ *) Replication-Controller
+ *) Replica-Set
+ *) Deployment
+ *) Horizontal-Pod-Autoscaler
+ *) Stateful-Set
+ *) Job
+ *) Cron-Job
+ *) Ingress
+ *) API-Service
+
+Helm-charts have two versions 
+
+*) v2 uses tiller for authentication model uses client-side SSL certificates. Tiller itself verifies these certificates 
+   using a certificate authority. Likewise, the client also verifies Tiller’s identity by certificate authority.
+*) The Tiller Server is an in-cluster server that interacts with the Helm client, and interfaces with the Kubernetes API
+   server. The server is responsible for the following:
+     *) Listening for incoming requests from the Helm client
+     *) Combining a chart and configuration to build a release
+     *) Installing charts into Kubernetes, and then tracking the subsequent release
+     *) Upgrading and uninstalling charts by interacting with Kubernetes
+*)  the client is responsible for managing charts, and the server is responsible for managing releases.
+
+Drawbacks of v2
+
+   *) Security Risks with Tiller
+   *) Cluster-wide Access
+   *) Version Mismatch Issues
+   *) Centralized Release Management
+   *) Complexity of Helm Server Installation
+   *) Difficulty in Role-Based Access Control [RBAC]
+   *) Maintenance Overhead
+
