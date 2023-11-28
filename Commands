@@ -1,0 +1,269 @@
+Install and Uninstall Apps
+
+The main function of Helm is Kubernetes app management. 
+Helm enables you to perform test installations and customize the installation process.
+
+ *) Install an app
+
+       $ helm install [app-name] [chart]
+   ex:-$ helm install my-nginx stable/nginx-ingress -f values.yaml
+
+ *) Install an app in a specific namespace
+
+       $ helm install [app-name] [chart] --namespace [namespace]
+   ex:-$ helm install nginx stable/nginx-ingress -f values.yaml --namespace gk
+
+ *) Override the default values with those specified in a file of your choice
+
+       $ helm install [app-name] [chart] --values [yaml-file/url]
+   ex:-$ helm install nginx stable/nginx-ingress -f values.yml --values values.yml
+
+ *) Run a test installation to validate and verify the chart:
+
+       $ helm install [app-name] --dry-run --debug
+   ex:-$ helm install nginx --dry-run --debug
+
+ *) Uninstall a release
+
+      $ helm uninstall [release]
+  ex:-$ helm uninstall v1 --namespace gk_namespace
+
+
+Perform App Upgrade and Rollback
+
+  Helm offers users multiple options for app upgrades, such as automatic rollback and upgrading to a specific version.
+  Rollbacks can also be executed on their own. For detailed instructions on how to perform a rollback, check out How to
+  Roll Back Changes with Helm.
+
+  *) Upgrade an app
+
+       $ helm upgrade [release] [chart]
+   ex:-$ helm upgrade v1 stable/nginx-ingress -f values.yaml --namespace gk
+
+  *) Instruct Helm to rollback changes if the upgrade fails
+
+       $ helm upgrade [release] [chart] --atomic
+   ex:-$ helm upgrade v1 stable/nginx-ingress -f values.yml --namespace gk --atomic
+
+  *) Upgrade a release. If it does not exist on the system, install it
+
+       $ helm upgrade [release] [chart] --install
+   ex:-$ helm upgrade  v1 stable/nginx-ingress -f values.yml --namespace gk --install
+
+  *) Upgrade to a specified version
+
+       $ helm upgrade [release] [chart] --version [version-number]
+   ex:-$ helm upgrade v1 stable/nginx-ingress -f values.yml --namespace gk --version 1.2
+
+  *) Roll back a release
+
+       $ helm rollback [release] [revision]
+   ex:-$ helm rollback v1 stable/nginx-ingress -f values.yml my-release 2
+
+
+Download Release Information
+
+ The "helm get" command lets you download information about a release.
+
+  *) Download all the release information
+
+       $ helm get all [release]
+   ex:-$ helm get all my-release2
+
+  *) Download all hooks
+
+      $ helm get hooks [release]
+  ex:-$ helm get hooks my-release2
+
+ *)Download the manifest
+
+     $ helm get manifest [release]
+ ex:-$ helm get manifest my-release2
+
+ *) Download the notes
+
+    $ helm get notes [release]
+ex:-$ helm get notes my-release2
+
+ *) Download the values file
+
+    $ helm get values [release]
+ex:-$ helm get values my-release2
+
+ *) Fetch release history
+
+    $ helm history [release] 
+ex:-$ helm history my-release2
+
+
+Add, Remove, and Update Repositories
+
+ The command helm repo helps you manipulate chart repositories.
+
+  *) Add a repository from the internet
+
+        $ helm repo add [repository-name] [url]
+    ex:-$ helm repo add gk https://gk-helm.com
+
+  *) Remove a repository from your system
+
+        $ helm repo remove [repository-name]
+    ex:-$ helm repo remove gk
+
+  *) Update repositories
+
+       $ helm repo update
+
+List and Search Repositories
+
+   Use the helm repo and helm search commands to list and search Helm repositories. helm search also enables you to find apps 
+   and repositories in Helm Hub.
+
+  *) List chart repositories
+
+      $ helm repo list
+
+ *) Generate an index file containing charts found in the current directory
+
+      $ helm repo index
+
+ *) Search charts for a keyword
+
+        $ helm search [keyword]
+    ex:-$ helm search manifest
+
+ *) Search repositories for a keyword:
+
+        $ helm search repo [keyword]
+    ex:-$ helm search repo manifest
+
+ *) Search Helm Hub:
+
+       $ helm search hub [keyword]
+   ex:-$ helm search hub manifest
+
+Release Monitoring
+
+ *) List all available releases in the current namespace
+
+       $ helm list
+
+ *) List all available releases across all namespaces
+
+      $ helm list --all-namespaces
+
+ *) List all releases in a specific namespace
+
+      $ helm list --namespace [namespace]
+  ex:-$ helm list --namespace gk
+
+ *) List all releases in a specific output format
+
+      $ helm list --output [format]
+  ex:-$ helm list --output table
+
+*) Apply a filter to the list of releases using regular expressions
+
+      $ helm list --filter '[expression]'
+  ex:-$ helm list --output json | jq '.[] | select(.STATUS == "deployed")'
+ 
+*) See the status of a specific release
+
+     $ helm status [release]
+ ex:-$ helm status v1
+
+*) Display the release history
+
+     $ helm history [release]
+ ex:-$ helm history v1
+
+*) See information about the Helm client environment:
+
+     $ helm env
+
+
+Plugin Management
+
+
+*) Install plugins
+
+     $ helm plugin install [path/url1] [path/url2] ...
+ ex:-$ helm plugin install dev/webapps/helm/values qa/webapps/helm/repo/gk
+
+*) View a list of all installed plugins
+
+     $ helm plugin list
+
+*) Update plugins
+
+     $ helm plugin update [plugin1] [plugin2] ...
+ ex:-$ helm plugin update bluegreen, ocean
+
+*) Uninstall a plugin:
+
+     $ helm plugin uninstall [plugin]
+ ex:-$ helm plugin uninstall ocean
+
+
+Chart Management
+
+
+*) Create a directory containing the common chart files and directories (chart.yaml, values.yaml, charts/ and templates/):
+
+     $ helm create [name]
+ ex:-$ helm create gk
+
+*) Package a chart into a chart archive:
+
+     $ helm package [chart-path]
+ ex:-$ helm package root/helm/values.yaml
+
+*) Run tests to examine a chart and identify possible issues
+
+     $ helm lint [chart]
+ ex:-$ helm lint service.yml
+
+*) Inspect a chart and list its contents
+
+     $ helm show all [chart] 
+ ex:-$ helm show all charts.yml
+
+*) Display the chart’s definition
+
+     $ helm show chart [chart] 
+ ex:-$ helm show chart manifest.yml
+
+*) Display the chart’s values
+
+     $ helm show values [chart]
+ ex:-$ helm show values service,yml
+
+*) Download a chart
+
+     $ helm pull [chart]
+ ex:-$ helm pull values.yml
+
+*) Download a chart and extract the archive’s contents into a directory
+
+     $ helm pull [chart] --untar --untardir [directory]
+ ex:-$ helm pull values.yml --untar --untardir gk
+
+*) Display a list of a chart’s dependencies
+
+     $ helm dependency list [chart]
+ ex:-$ helm dependency list service.yml
+
+
+Get Help and Version Information
+
+*) Display the general help output for Helm:
+
+     $ helm --help
+
+*) Show help for a particular helm command:
+
+     $ helm [command] --help
+
+*) See the installed version of Helm:
+
+     $ helm version
