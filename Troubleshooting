@@ -1,0 +1,295 @@
+Credential errors while upgrading chart releases
+
+  Credential errors during the upgrade of Helm chart releases typically indicate an issue with the authentication (or) 
+  authorization of the Helm client to access the Kubernetes cluster or the Helm repository. Here are some common scenarios
+  and steps to resolve credential errors
+
+*) Incorrect Kubernetes Configuration
+
+    Issue:- Helm may not be configured with the correct Kubernetes context (or) credentials.
+    Resolution:-
+         $ kubectl config use-context <correct-context-name>
+     ex:-$ kubectl config use-context values.yml
+
+ *) Expired (or) Invalid Kubernetes Token
+
+    Issue:- The token used for authentication may have expired (or) is invalid.
+    Resolution:- Obtain a new token and update the Kubernetes configuration
+          $ kubectl get secret <secret-name> -n <namespace> -o jsonpath="{.data.token}" | base64 --decode
+      ex:-$ kubectl get secret gk.secret -n gk -o jsonpath="{.data.token}"  | base64 --decode
+
+ *) Incorrect Helm Repository Credentials
+
+     Issue:- Helm may not have the correct credentials to access the chart repository.
+     Resolution:-Update (or) add repository credentials using the helm repo add command.
+         $ helm repo add <repo-name> <repo-url> --username <username> --password <password>
+     ex:-$ helm repo add gk https://gk.helm.com --username gk --password ******
+
+ *) Access Control Configuration in Kubernetes
+
+    Issue:- The Helm service account may not have the necessary permissions.
+    Resolution:- Ensure that the service account associated with Helm has the appropriate RBAC
+                 (Role-Based Access Control) permissions.
+
+ *) Registry Authentication for Private Images
+
+    Issue:- If your charts use private container images, ensure that the Kubernetes cluster has the necessary
+            credentials to pull these images.
+    Resolution:- Update Kubernetes secrets with the correct credentials for pulling private images.
+
+ *) Helm Version Compatibility
+
+    Issue:- Helm client and server versions may not be compatible.
+    Resolution:- Ensure that the Helm client version matches the Helm server (Tiller) version.
+     Here's an example of how you might address an issue where Helm cannot access a private chart repository:
+      # Add the repository with credentials
+        $ helm repo add my-repo https://example.com/charts --username gk --password *****
+      # Update the repository
+        $ helm repo update
+      # Upgrade the release
+        $ helm upgrade gk-release gk-repo/gk-chart
+
+Issues with existing Persistence Volumes (PVs) from previous releases
+
+*) Orphaned PVs from Previous Releases
+
+    Issue:- PVs created by a previous Helm release might still exist, causing conflicts (or) preventing the
+            creation of new PVs.
+    Resolution:- Manually delete the orphaned PVs using kubectl delete pv <pv-name>.
+          $ kubectl get pv
+          $ kubectl delete pv <gk-pv> $ kubectl delete pv gk
+
+ *) Reuse Existing PVs in a New Release
+
+    Issue:- You want to reuse existing PVs in a new Helm release.
+    Resolution:- Reference the existing PVs in your Helm chart's values.yaml or use a custom YAML file.
+      # values.yaml (or) custom-values.yaml
+       existingPV:
+       enabled: true
+       name: <gk-pv>
+
+   Then, in your Helm release
+       $ helm install my-release -f custom-values.yaml ./gk-chart
+
+*)  PV/PVC Name Conflicts
+
+   Issue:- Helm may attempt to create PVs with names conflicting with existing ones.
+   Resolution:- Customize the PV and PVC names in your Helm chart's values.yaml.
+      # values.yaml
+       persistence:
+       existingClaimName: <gk-pvc>
+  Then, in your Helm release
+      $ helm install my-release -f values.yaml ./gk-chart
+
+*) Dynamic Provisioning and Storage Class Issues
+
+   Issue:- PVs may not be created due to issues with dynamic provisioning or incorrect storage class.
+   Resolution:- Check the storage class defined in your Helm chart's values.yaml.
+       # values.yaml
+        persistence:
+       storageClass: <gk-pvc-storage>
+   Then, in your Helm release:
+      $ helm install my-release -f values.yaml ./gk-chart
+
+*) Manual PV Creation
+
+   Issue:- Manually created PVs need to be associated with a Helm release.
+   Resolution:- Manually create a PVC referencing the existing PV and then reference the PVC in your Helm chart.
+     # values.yaml
+     persistence:
+     existingClaimName: <gk-pvc>
+  Then, in your Helm release
+     $ helm install my-release -f values.yaml ./gk-chart
+
+*) PV/PVC Ownership
+
+   Issue:- Helm might not have the necessary permissions to manage existing PVs/PVCs.
+   Resolution:- Ensure that Helm has the required RBAC permissions to manage PVs and PVCs.
+   Example Helm Install Command:
+     $ helm install my-release -f values.yaml ./my-chart
+
+Permission errors when enabling persistence
+
+*) RBAC Issues
+
+   Issue:- Helm may not have the necessary permissions to create or manage PVs and PVCs.
+   Resolution:- Ensure that the service account associated with Helm has the appropriate RBAC roles and
+                role bindings.
+      # ClusterRoleBinding example
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: ClusterRoleBinding
+              metadata:
+                  name: helm-cluster-admin-gk
+              subjects:
+                 - kind: ServiceAccount
+                  name: <gk-service-account>
+                  namespace: <gk-helm>
+              roleRef:
+                  kind: ClusterRole
+                  name: cluster-admin
+                  apiGroup: rbac.authorization.k8s.io
+
+ *) File System Permissions
+
+    Issue:- The pods running in the cluster may not have the necessary file system permissions to write to the
+            specified persistent volume mount.
+    Resolution:- Ensure that the file system permissions on the persistent volume mount point are set correctly.
+           # Pod spec example
+              apiVersion: v1
+              kind: Pod
+              metadata:
+                  name: mypod
+                  spec:
+                  containers:
+                   - name: mycontainer
+                     image: myimage
+                      volumeMounts:
+                        - name: myvolume
+                          mountPath: /aws/helm-charts/config
+                   volumes:
+                         - name: myvolume
+                           persistentVolumeClaim:
+                              claimName: mypvc
+
+*)  Storage Class Permissions
+
+     Issue:- The storage class used for dynamic provisioning may have restrictive permissions.
+     Resolution:- Check the permissions and policies associated with the storage class in use.
+      # Storage class example
+             apiVersion: storage.k8s.io/v1
+             kind: StorageClass
+             metadata:
+                name: <gk_storage-space>
+            provisioner: <gk-provisioner>
+
+*) Kubernetes Namespace Issues
+
+   Issue:- Helm may be trying to create resources in a namespace where it lacks permissions.
+   Resolution:- Ensure that Helm is configured to use the correct namespace, and RBAC permissions are granted 
+                for that namespace
+       $ helm install my-release1 -n <gk> ./gk-chart
+  Example Helm Install Command with RBAC Config
+       $ helm install my-release1 -f rbac-values.yaml ./gk-chart
+
+ getting a warning about "Unable to get an update from the "stable" chart repository"
+
+   *) If you're encountering a warning like "Unable to get an update from the 'stable' chart repository" in Helm, it
+      suggests that Helm is having trouble reaching or updating the charts from the default "stable" chart repository.
+   *) This repository was previously the default repository for Helm charts, but it may have changed (or) been deprecated
+
+    *)  Update Helm Repositories
+
+      following command for update the Helm repositories
+         $ helm repo update
+
+    *) Check Helm Repository Configurations
+
+      Ensure that your Helm is configured to use the correct repositories. The stable charts may have been moved to a 
+      different repository.
+        $ helm repo list
+      Verify that the stable repository is correctly configured.
+
+    *) Use the New Default Repository
+
+     If the stable repository has been deprecated, consider using the new default repository (if applicable). For Helm 3,
+     the stable charts are generally moved to the https://charts.helm.sh/stable repository.
+       $ helm repo add stable https://charts.helm.sh/stable
+
+   *) Migrate to the Artifact Hub
+
+     As of Helm 3, the Artifact Hub is the official Helm Chart repository. You might want to migrate to this repository for
+     up-to-date charts.
+       $ helm repo add stable https://charts.helm.sh/stable
+    Example Commands
+    # Update repositories
+      $ helm repo update
+   # Check repository list
+      $ helm repo list
+
+  If you prefer to using the new default repository, you can add 
+     $ helm repo add stable https://charts.helm.sh/stable
+
+getting the warning 'WARNING: "kubernetes-charts.storage.googleapis.com" is deprecated for "stable" and will be deleted
+Nov. 13, 2020.'
+
+    Helm repository "kubernetes-charts.storage.googleapis.com" (commonly used for the "stable" charts) is deprecated and
+    scheduled for deletion. The Helm community has moved away from this repository, and you should update your Helm charts
+    to use the new repository locations.
+
+  *) Update Helm Repositories
+
+      the command to update your Helm repositories
+        $ helm repo update
+
+  *) Check Helm Repository Configurations
+
+    Confirm that your Helm charts are configured to use the new repositories. The stable charts have been migrated, and you 
+    should update the repository URLs accordingly.
+       $ helm repo list
+    Ensure that the repository for "stable" is pointing to the correct location.
+
+ *) Use the New Default Repository
+
+    If you're using Helm 3, the default repository for stable charts is now "https://charts.helm.sh/stable". If you haven't 
+    added it, you can do so with:
+      $ helm repo add stable https://charts.helm.sh/stable
+
+ *) Update Chart References
+
+    If your Helm charts reference charts from the deprecated repository, update those references to the new repository.
+    For example, if you have a dependency in your requirements.yaml file:
+             dependencies:
+                - name: redis
+                  version: 7.3.6
+                   repository: https://kubernetes-charts.storage.googleapis.com/
+    Update it to:
+              dependencies:
+                - name: redis
+                  version: 7.3.6
+                  repository: https://charts.helm.sh/stable
+  Ex Commands:-
+   # Update repositories
+     $ helm repo update
+   # Check repository list
+     $ helm repo list
+   # Add the new default stable repository
+     $ helm repo add stable https://charts.helm.sh/stable
+
+When I add a Helm repo, I get the error 'Error: Repo "https://kubernetes-charts.storage.googleapis.com" is no longer 
+available
+
+  indicates that the Helm repository at "https://kubernetes-charts.storage.googleapis.com" is deprecated and has been 
+  taken down. 
+
+  *) Update Helm Repositories
+
+     command to update your Helm repositories and remove references to the deprecated repository
+        $ helm repo update
+
+  *) Check Helm Repository Configurations
+
+      Verify that your Helm charts are configured to use the new repositories. The stable charts have been migrated, and you 
+      should update the repository URLs accordingly.
+       $ helm repo list
+
+ *) Use the New Default Repository
+
+    If you're using Helm 3, the default repository for stable charts is now https://charts.helm.sh/stable. If you haven't 
+    added it, you can do so with:
+      $ helm repo add stable https://charts.helm.sh/stable
+
+ *) Update Chart References
+
+    If your Helm charts explicitly reference charts from the deprecated repository, update those references to the new repository.
+    For ex, if you have a dependency in your "requirements.yaml" file
+       dependencies:
+         - name: redis
+           version: 7.3.6
+               repository: https://kubernetes-charts.storage.googleapis.com/
+    Update it to
+         dependencies:
+            - name: redis
+              version: 7.3.6
+              repository: https://charts.helm.sh/stable
+
+
