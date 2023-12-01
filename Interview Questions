@@ -1,0 +1,132 @@
+*) What is Helm?
+
+   Helm is a package manager for Kubernetes that allows you to install, upgrade, and
+   manage Kubernetes applications.
+
+*) Can you describe the architecture of Helm and its main components?
+
+   1) Helm is a package manager for Kubernetes that allows you to install, upgrade, and manage
+      Kubernetes applications.
+   2) The Helm architecture is based on client-server architecture, with a Helm client and a Tiller server.
+      in v2 
+   3) The Helm client is used to install, upgrade, and manage Kubernetes applications, while the Tiller server
+      interacts with the Kubernetes API server to install, upgrade, and manage Kubernetes applications.
+
+*) What are some common use cases for using Helm charts to manage applications in Kubernetes?
+
+    1) Helm charts are often used to manage stateful applications in Kubernetes, such as databases (or) message
+       queues. 
+    2) This is because Helm charts can help you to manage the complex dependencies that these types of applications
+       often have.
+    3) Helm charts can also be used to manage applications that are deployed across multiple Kubernetes clusters,
+       or to manage applications that are updated frequently.
+
+*) Why is it important to version control your Helm Charts?
+
+    Versioning your Helm Charts is important for a few reasons. First, it allows you to track changes and revert back 
+    to previous versions if necessary. Second, it allows you to share your Helm Charts with others, and they can be
+    confident that they are using the same version that you are using. Finally, it allows for automated updates to your
+    Helm Charts, so that you can always be up-to-date.
+
+*) How do you create a new chart with Helm?
+
+   The easiest way to create a new chart is to use the "helm create" command. This will create a new directory with the 
+   necessary chart files.
+       $ helm create chartname
+   ex:-$ helm create nginx
+
+*) What’s the best way to view all available versions of a package on a remote repository?
+
+   The best way to view all available versions of a package on a remote repository is to use the “helm search” command.
+   This will allow you to search for a specific package and see all of the available versions that are published on the 
+   repository.
+
+*) Can you explain what a release is in Helm?
+
+   A release is a collection of resources that have been installed on a Kubernetes cluster using Helm. A release can be 
+   thought of as a snapshot of the resources that have been installed on a cluster at a given point in time.
+
+*) What is a dependency in Helm? When would you decide to add dependencies to your Helm chart?
+
+   A dependency in Helm is a chart that your chart needs in order to function properly. You would add dependencies to your
+   Helm chart when you need to include other charts in order to make your chart work correctly.
+
+*) What is Tiller? What role does it play in Helm?
+
+   Tiller is the server component of Helm. It is responsible for managing the lifecycle of Helm charts, which are packages 
+   of pre-configured Kubernetes resources. Tiller runs inside of a Kubernetes cluster and can be used to install, upgrade,
+   and delete Helm charts.
+
+*) Explain how variables work in Helm?
+
+  1) Variables in Helm work similarly to variables in other programming languages. You can set a variable to a specific value
+     and then reference that variable throughout your code. 
+  2) When you reference the variable, the value that you set for the variable will be used. This can be helpful when you want 
+     to use the same value in multiple places but don’t want to have to keep typing it out.
+
+*) What are the different types of values that can be used in Helm templates?
+
+    The 3 types of values that can be used in Helm templates are objects
+       1) strings
+       2) integers
+       3) Objects
+     used to represent complex data structures, strings are used for simple text values, and integers are used 
+     for numeric  values.
+
+*) Is it possible to store secrets like passwords (or) API keys, in the same file as other template parameters?
+  If yes, then how?
+
+    No, it is not possible to store secrets in the same file as other template parameters. Secrets should be stored 
+    in a separate file, and then referenced by the template file.
+
+*) How do you define entry points for containers in a Helm chart?
+
+   1) You can define entry points for containers in a Helm chart by using the containerSpec object in the chart’s values.yaml
+      file. 
+   2) In the containerSpec object, you can specify the name, image, and command for each container, as well as any other desired
+      configuration options.
+
+*) What is the difference between helm install and helm upgrade commands?
+
+   helm install command will install a new instance of a chart
+   helm upgrade command will upgrade an existing instance of a chart.
+
+*) What is the recommended strategy for deploying multiple copies of an application with Helm?
+
+  1) The recommended strategy for deploying multiple copies of an application with Helm is to use a combination of the 
+    `helm install` and `helm upgrade` commands. 
+  2) The `helm install` command can be used to deploy a new instance of an application, while the `helm upgrade` command
+     can be used to update an existing instance of an application.
+
+*) How do you enable RBAC support when installing Helm?
+
+   RBAC support can be enabled by passing the –rbac flag to the helm install command. This will cause Helm to create the 
+   necessary RBAC resources in order to provide access control to the Helm installation.
+
+*) How do you rollback a Helm deployment if something goes wrong?
+
+    You can use the Helm history command to see the revision history of a given deployment. If you need to rollback to a 
+    previous revision, you can use the Helm $ rollback command.
+
+*) What is the purpose of tests in a Helm chart?
+
+    The purpose of tests in a Helm chart is to verify that the chart can be installed and that it functions as expected.
+    These tests can be run automatically when the chart is built, and they can also be run manually by users who want to 
+    verify the chart before installing it.
+
+*) What are some best practices you should follow when working with Helm charts?
+
+  Some best practices to follow when working with Helm charts include
+      Keep your charts simple and modular
+      Use official charts whenever possible
+      Use namespaces to organize your charts
+      Be consistent in your chart naming
+      Use labels to annotate your charts
+      Use comments to document your charts
+
+*) What are some alternatives to Helm that are worth considering?
+
+     There are a few other options for package managers for Kubernetes,
+     including "ksonnet and kubectl".
+      However, Helm is still the most popular option and is used by many large companies.
+
